@@ -14,7 +14,11 @@ import (
 
 type Data struct {
 	Content string
-	// List []entry
+}
+
+type Functime struct {
+	func_time time.Duration
+	pageCount int
 }
 
 // returns all files within a given directory
@@ -62,10 +66,6 @@ func writeTemplate(fileName, translate string) {
 	var fileData Data
 	fileData.Content = readFromFile(fileName)
 
-	// if translate != "" {
-	// 	fileData.Content = trans.TranslateText(translate, fileData.Content)
-	// }
-
 	t := template.Must(template.New("template.tmpl").ParseFiles("template.tmpl"))
 	newFile := writeFile(fileName)
 
@@ -85,14 +85,11 @@ func main() {
 	save()
 }
 
-func print(pageCount int, runtime time.Duration) {
-	// fmt.Print()
-	green := color.New(color.FgGreen).PrintfFunc()
-	green("Success! ")
-	fmt.Print("Generated ")
-	count := color.New(color.Bold, color.FgWhite).PrintFunc()
-	count(pageCount)
-	fmt.Println(" pages in", runtime)
+func print(runtime time.Duration) Functime {
+	var funcRuntime Functime
+	funcRuntime.func_time = runtime
+	funcRuntime.pageCount = funcRuntime.pageCount + 1
+	return funcRuntime
 }
 
 func save() {
@@ -103,7 +100,7 @@ func save() {
 
 	flag.Parse()
 
-	pageCount := 0
+	var fTCount []Functime
 
 	if *dirFlag != "" {
 		files := readFilesFromDir(*dirFlag)
@@ -113,21 +110,37 @@ func save() {
 			fileName := file.Name()
 			// check if this filename is a txt file
 			if DoesFileExist(fileName) == true {
-				fmt.Println(".txt file found in your dir", fileName)
+				// fmt.Println(".txt file found in your dir", fileName)
 				start := time.Now()
 				writeTemplate(fileName, *translateFlag)
-				print(pageCount, time.Since(start))
-				pageCount = pageCount + 1
+				fTCount = append(fTCount, print(time.Since(start)))
+
 			}
 		}
 
 	} else {
 		start := time.Now()
 		writeTemplate(*fileFlag, *translateFlag)
-		fmt.Println("Time function run ")
-		print(pageCount, time.Since(start))
+		// fmt.Println("Time function run ")
+		fTCount = append(fTCount, print(time.Since(start)))
 
-		pageCount = pageCount + 1
+	}
+	cyan := color.New(color.FgCyan).PrintfFunc()
+	red := color.New(color.FgRed).PrintfFunc()
+	boldFont := color.New(color.Bold, color.FgWhite).PrintFunc()
+
+	color.Green("Success! ")
+	fmt.Print("Generated ")
+	boldFont(len(fTCount))
+
+	fmt.Println(" templates in: ")
+	for i, file := range fTCount {
+		fmt.Println("_________ _ __ __________")
+		cyan("Template: ")
+		boldFont(i + 1)
+		red(" in ")
+		fmt.Println(file.func_time)
+		fmt.Println("_________|_|__|_________|")
 
 	}
 
