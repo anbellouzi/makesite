@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/fatih/color"
 )
@@ -57,9 +58,13 @@ func readFromFile(fileName string) string {
 	return string(fileContents)
 }
 
-func writeTemplate(fileName string) {
+func writeTemplate(fileName, translate string) {
 	var fileData Data
 	fileData.Content = readFromFile(fileName)
+
+	// if translate != "" {
+	// 	fileData.Content = trans.TranslateText(translate, fileData.Content)
+	// }
 
 	t := template.Must(template.New("template.tmpl").ParseFiles("template.tmpl"))
 	newFile := writeFile(fileName)
@@ -80,20 +85,21 @@ func main() {
 	save()
 }
 
-func print(pageCount int) {
+func print(pageCount int, runtime time.Duration) {
 	// fmt.Print()
 	green := color.New(color.FgGreen).PrintfFunc()
 	green("Success! ")
 	fmt.Print("Generated ")
 	count := color.New(color.Bold, color.FgWhite).PrintFunc()
 	count(pageCount)
-	fmt.Println(" pages")
+	fmt.Println(" pages in", runtime)
 }
 
 func save() {
 
 	fileFlag := flag.String("file", "second-post.txt", "file name you want to use for content")
 	dirFlag := flag.String("dir", "", "Directory name that contain all your .txt files")
+	translateFlag := flag.String("lang", "", "Language you want to translate the content to.")
 
 	flag.Parse()
 
@@ -108,16 +114,21 @@ func save() {
 			// check if this filename is a txt file
 			if DoesFileExist(fileName) == true {
 				fmt.Println(".txt file found in your dir", fileName)
-				writeTemplate((fileName))
+				start := time.Now()
+				writeTemplate(fileName, *translateFlag)
+				print(pageCount, time.Since(start))
 				pageCount = pageCount + 1
 			}
 		}
 
 	} else {
-		writeTemplate(*fileFlag)
-		pageCount = pageCount + 1
-	}
+		start := time.Now()
+		writeTemplate(*fileFlag, *translateFlag)
+		fmt.Println("Time function run ")
+		print(pageCount, time.Since(start))
 
-	print(pageCount)
+		pageCount = pageCount + 1
+
+	}
 
 }
