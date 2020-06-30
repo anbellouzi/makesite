@@ -158,7 +158,6 @@ func save() {
 		boldFont(record.func_size)
 		boldFont("kb")
 		red(" in ")
-
 		fmt.Printf("%.2f", record.func_time)
 		// fmt.Println("_________|_|__|_________|")
 		fmt.Println("ms")
