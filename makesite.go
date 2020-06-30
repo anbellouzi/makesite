@@ -31,8 +31,6 @@ func readFromFile(file string) string {
 		// panics if we get an unexpected error when creating a new file.
 		panic(err)
 	}
-	// fmt.Print(string(fileContents))
-
 	return string(fileContents)
 }
 
@@ -51,9 +49,12 @@ func writeTemplate(file string) {
 
 func main() {
 
+}
+
+func save() {
+
 	fileFlag := flag.String("file", "second-post.txt", "file name you want to use for content")
 	flag.Parse()
 
 	writeTemplate(*fileFlag)
-
 }
