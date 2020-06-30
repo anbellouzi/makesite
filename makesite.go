@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -11,16 +12,18 @@ type Data struct {
 	// List []entry
 }
 
-func writeFile() {
-	bytesToWrite := []byte("hello\ngo\n")
-	err := ioutil.WriteFile("new-file.txt", bytesToWrite, 0644)
+func writeFile(fileName string) *os.File {
+	fileName = strings.Split(fileName, ".")[0] + ".html"
+	file, err := os.Create(fileName)
 	if err != nil {
 		panic(err)
 	}
+
+	return file
 }
 
-func readFromFile() string {
-	fileContents, err := ioutil.ReadFile("first-post.txt")
+func readFromFile(file string) string {
+	fileContents, err := ioutil.ReadFile(file)
 	if err != nil {
 		// A common use of `panic` is to abort if a function returns an error
 		// value that we don’t know how to (or want to) handle. This example
@@ -32,12 +35,14 @@ func readFromFile() string {
 	return string(fileContents)
 }
 
-func writeTemplate() {
+func writeTemplate(file string) {
 	var fileData Data
-	fileData.Content = readFromFile()
+	fileData.Content = readFromFile(file)
 
 	t := template.Must(template.New("template.tmpl").ParseFiles("template.tmpl"))
-	err := t.Execute(os.Stdout, fileData)
+	newFile := writeFile(file)
+
+	err := t.Execute(newFile, fileData)
 	if err != nil {
 		panic(err)
 	}
@@ -45,5 +50,7 @@ func writeTemplate() {
 
 func main() {
 
-	writeTemplate()
+	fileName := "first-post.txt"
+
+	writeTemplate(fileName)
 }
