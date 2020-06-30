@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -50,7 +51,9 @@ func writeTemplate(file string) {
 
 func main() {
 
-	fileName := "first-post.txt"
+	fileFlag := flag.String("file", "second-post.txt", "file name you want to use for content")
+	flag.Parse()
 
-	writeTemplate(fileName)
+	writeTemplate(*fileFlag)
+
 }
